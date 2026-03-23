@@ -1,0 +1,1 @@
+# Projeto de Automação Financeira - Integração Python e Adm
