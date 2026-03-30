@@ -1,4 +1,5 @@
 import pandas as pd
+import matplotlib.pyplot as plt
 
 def processar_meu_projeto_adm(nome_arquivo):
     try:
@@ -19,6 +20,15 @@ def processar_meu_projeto_adm(nome_arquivo):
             'Margem_Percentual': 'mean'
         }).round(2).rename(columns={'Margem_Contribuicao': 'Lucro_Total_RS', 'Margem_Percentual': 'Margem_Media_Perc'})
 
+        # --- GERANDO O GRÁFICO ---
+        plt.style.use('ggplot')
+        plt.figure(figsize=(10, 6))
+        resumo['Lucro_Total_RS'].sort_values().plot(kind='barh', color='seagreen')
+        plt.title('Lucro Total por Categoria')
+        plt.xlabel('Lucro (R$)')
+        plt.tight_layout()
+        plt.savefig("grafico_lucro.png") # Salva a imagem na pasta
+        
         print("--- Relatório de Eficiência por Categoria ---")
         print(resumo)
 
