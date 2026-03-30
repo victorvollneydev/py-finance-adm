@@ -1,0 +1,11 @@
+# Ambiente Virtual
+venv/
+.venv/
+
+# Arquivos do Excel (Temporários e Gerados)
+~$*
+relatorio_estrategico.xlsx
+
+# Cache do Python
+__pycache__/
+*.pyc
