@@ -18,7 +18,28 @@ def processar_meu_projeto_adm(nome_arquivo):
         resumo = df.groupby('Categoria').agg({
             'Margem_Contribuicao': 'sum',
             'Margem_Percentual': 'mean'
-        }).round(2).rename(columns={'Margem_Contribuicao': 'Lucro_Total_RS', 'Margem_Percentual': 'Margem_Media_Perc'})
+        }).rename(columns={'Margem_Contribuicao': 'Lucro_Total_RS', 'Margem_Percentual': 'Margem_Media_Perc'})
+
+        # 5. Ordenar pelo lucro (do maior para o menor)
+        resumo = resumo.sort_values(by='Lucro_Total_RS', ascending=False)
+
+        # 5.5 Criando a variável Lucro_total_geral que será usada na criação da Perc_Acumulada.
+        # 0 .cumsum soma o lucro da linha atual com as anteriores
+        lucro_total_geral = resumo['Lucro_Total_RS'].sum()
+        resumo['Perc_Acumulada'] = (resumo['Lucro_Total_RS'].cumsum() / lucro_total_geral) * 100
+
+        # 6. Criando uma função para classificar em A, B ou C.
+        def classificar_abc(porcentagem):
+            if porcentagem <= 80:
+                return 'A'
+            elif porcentagem <= 95:
+                return 'B'
+            else:
+                return 'C'
+
+        # 7. Aplicando a classificação 80/20 de Pareto 
+        resumo['Curva_ABC'] = resumo['Perc_Acumulada'].apply(classificar_abc)
+        resumo = resumo.round(2)
 
         # --- GERANDO O GRÁFICO ---
         plt.style.use('ggplot')
