@@ -57,6 +57,55 @@ def processar_meu_projeto_adm(nome_arquivo):
         resumo.to_excel("relatorio_estrategico.xlsx")
         print("\nSucesso! O relatório 'relatorio_estrategico.xlsx' foi gerado.")
 
+      # --- NOVO GRÁFICO DE PARETO APRIMORADO ---
+        fig, ax1 = plt.subplots(figsize=(14, 7)) 
+
+        # 1. Configuração das Barras de Lucro (Eixo Esquerdo)
+        barras = ax1.bar(resumo.index, resumo['Lucro_Total_RS'], color='skyblue', label='Lucro Individual')
+        ax1.set_ylabel('Lucro (R$)', fontsize=12, color='skyblue')
+        ax1.tick_params(axis='y', labelcolor='skyblue') # Pinta os números do eixo de azul
+        plt.xticks(rotation=45, ha='right') # Inclina e alinha os nomes das categorias
+
+        # --- ADICIONAR VALORES EM CIMA DAS BARRAS ---
+        for barra in barras:
+            height = barra.get_height()
+            ax1.annotate(f'{height:.0f}', # Texto formatado sem casas decimais
+                         xy=(barra.get_x() + barra.get_width() / 2, height),
+                         xytext=(0, 3),  # Deslocamento de 3 pontos para cima
+                         textcoords="offset points",
+                         ha='center', va='bottom', fontsize=9, color='black')
+
+        # 2. Configuração da Linha da Porcentagem Acumulada (Eixo Gêmeo Direito)
+        ax2 = ax1.twinx()
+        linha = ax2.plot(resumo.index, resumo['Perc_Acumulada'], color='red', marker='D', ms=7, label='% Acumulada')
+        ax2.set_ylabel('Porcentagem Acumulada (%)', fontsize=12, color='red')
+        ax2.tick_params(axis='y', labelcolor='red') # Pinta os números do eixo de vermelho
+        ax2.set_ylim(0, 110) # Garante que a escala vá até 100%
+
+        # --- ADICIONAR PORCENTAGENS NA LINHA ---
+        y_acumulado = resumo['Perc_Acumulada'].tolist()
+        for i, txt in enumerate(y_acumulado):
+            ax2.annotate(f'{txt:.1f}%', # Texto formatado com 1 casa decimal e o símbolo %
+                         xy=(i, y_acumulado[i]),
+                         xytext=(0, 8), # Deslocamento de 8 pontos para cima
+                         textcoords="offset points",
+                         ha='center', va='bottom', fontsize=9, color='red', weight='bold')
+
+        # 3. Título e Legendas Combinadas Abaixo do Gráfico
+        plt.title('Curva ABC - Análise de Pareto Estratégica', fontsize=16, pad=20)
+        
+        # Combinando as legendas dos dois eixos em uma única caixa
+        lns = [barras, linha[0]]
+        labs = [l.get_label() for l in lns]
+        
+        # bbox_to_anchor move a legenda. loc='upper center' alinha o topo dela ao centro.
+        ax1.legend(lns, labs, loc='upper center', bbox_to_anchor=(0.5, -0.15), 
+                   ncol=2, fontsize=11, frameon=True)
+        
+        plt.tight_layout() # Essencial para que a legenda de baixo não seja cortada
+        plt.savefig("grafico_pareto_abc.png") # Salvando com nome novo
+        print("Gráfico de Pareto Profissional 'grafico_pareto_abc.png' gerado com sucesso!")
+
     except FileNotFoundError:
         print(f"Erro: O arquivo '{nome_arquivo}' não foi encontrado na pasta.")
     except Exception as e:
